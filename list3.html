@@ -1,0 +1,82 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="requirejs/require.js"></script>
+	<script>
+		require([
+			"delite/register", "delite/KeyNav", "dojo/query", "dojo/domReady!"
+		], function(register, KeyNav){
+			register("my-nav-list", [HTMLElement, KeyNav], {
+				buildRendering: function(){
+					this.containerNode = this;
+				},
+
+				// Specifies which descendants can be navigated to
+				childSelector: "div,a",
+
+				// Home/End key support
+				_getFirst: function(){
+					return this.firstElementChild;
+				},
+				_getLast: function(){
+					// last item in last list widget
+					return this.lastElementChild.firstElementChild;
+				},
+
+				// Simple arrow key support.
+				_onDownArrow: function(){
+					var li = this.focusedChild.nodeName == "a" ? this.focusedChild.parentNode : this.focusedChild;
+					this.focusChild( (li.nextElementSibling || this.firstElementChild));
+				},
+				_onUpArrow: function(){
+					var li = this.focusedChild.nodeName == "a" ? this.focusedChild.parentNode : this.focusedChild;
+					this.focusChild( (li.previousElementSibling || this.lastElementChild));
+				},
+				_onRightArrow: function(){
+					this.focusChild( this.focusedChild.firstElementChild );
+				}
+			});
+
+			register.parse();
+		});
+	</script>
+	<style>
+		my-nav-list {
+			border: 1px solid black;
+			padding: 2px;
+			display: block;
+		}
+		a {
+			border: 1px solid gray;
+			padding: 2px;
+			margin: 3px;
+			display: block;
+		}
+		a:before {
+			float: right;
+			content: "→"
+
+		}
+		div:focus {
+			background-color: yellow;
+		}
+	</style>
+</head>
+<body>
+<p>
+	Example of navigation list, down-arrow goes to role=listitem and right-arrow goes to role=link nodes.
+</p>
+<input value="for focus test"/>
+<my-nav-list tabindex="0" role="list">
+	<div role=listitem>
+		<a href="http://www.yahoo.com" tabindex="-1">Yahoo!</a>
+	</div>
+	<div role=listitem>
+		<a href="http://www.google.com" tabindex="-1">Google</a>
+	</div>
+	<div role=listitem>
+		<a href="http://www.ibm.com" tabindex="-1">IBM</a>
+	</div>
+</my-nav-list>
+</body>
+</html>
