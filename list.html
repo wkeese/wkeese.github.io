@@ -6,29 +6,68 @@
 		require([
 			"delite/register", "delite/KeyNav", "dojo/query", "dojo/domReady!"
 		], function(register, KeyNav){
-			register("my-nav-list", [HTMLElement, KeyNav], {
+			var List = register("my-nav-list", [HTMLElement, KeyNav], {
 				buildRendering: function(){
 					this.containerNode = this;
 				},
 
 				// Specifies which descendants can be navigated to
-				childSelector: "a",
+				childSelector: "*",
+
+				_getCurrentListItem: function () {
+					// Returns the list item that contains the currently focused child
+					var li = this.focusedChild;
+					while ( li.parentNode != this ){
+						li = li.parentNode;
+					}
+					return li;
+				},
+
+				_getListItemChildren: function (li) {
+					// Returns the navigable children of the specified or current list item, plus the list item
+					// itself, if it's navigable.
+					li = li || this._getCurrentListItem();
+					return (li.hasAttribute("navindex") ? [li] : []).concat(
+						Array.prototype.slice.call(li.querySelectorAll("[navindex]")));
+				},
 
 				// Home/End key support
 				_getFirst: function(){
-					return this.firstElementChild.firstElementChild;
+					return this._getListItemChildren(this.firstElementChild)[0];
 				},
 				_getLast: function(){
-					// last item in last list widget
-					return this.lastElementChild.firstElementChild;
+					// should this go to last list item, or last field in last list item?
+					return this._getListItemChildren(this.lastElementChild)[0];
 				},
 
 				// Simple arrow key support.
 				_onDownArrow: function(){
-					this.focusChild( (this.focusedChild.parentNode.nextElementSibling || this.firstElementChild).firstElementChild);
+					// Go to next list item (focusing first navigable field or list item itself)
+					var li = this._getCurrentListItem(),
+						nextLi = li.nextElementSibling || this.firstElementChild,
+						children = this._getListItemChildren(nextLi);
+					this.focusChild(children[0]);
 				},
 				_onUpArrow: function(){
-					this.focusChild( (this.focusedChild.parentNode.previousElementSibling || this.lastElementChild).firstElementChild);
+					// Go to previous list item (focusing first navigable field or list item itself)
+					var li = this._getCurrentListItem(),
+						prevLi = li.previousElementSibling || this.lastElementChild,
+						children = this._getListItemChildren(prevLi);
+					this.focusChild(children[0]);
+				},
+				_onRightArrow: function(){
+					// Loop through fields in current list item
+					var li = this._getCurrentListItem(),
+						children = this._getListItemChildren(li),
+						idx = Array.prototype.indexOf.call(children, this.focusedChild);
+					this.focusChild(children[(idx + 1) % children.length]);
+				},
+				_onLeftArrow: function(){
+					// Loop through fields in current list item
+					var li = this._getCurrentListItem(),
+						children = this._getListItemChildren(li),
+						idx = Array.prototype.indexOf.call(children, this.focusedChild);
+					this.focusChild(children[(idx - 1 + children.length) % children.length]);
 				}
 			});
 
@@ -37,41 +76,80 @@
 	</script>
 	<style>
 		my-nav-list {
-			border: 1px solid black;
+			border: 2px solid black;
 			padding: 2px;
 			display: block;
 		}
+
+		/* listitem */
+		my-nav-list > div {
+			border: 2px solid gray;
+			padding: 5px;
+			margin: 3px;
+			position: relative;
+			background: #eee;
+		}
+
+		/* listitem children */
 		a {
-			border: 1px solid gray;
+			border: 1px solid blue;
 			padding: 2px;
 			margin: 3px;
+			background: #fff;
 			display: block;
+		}
+		.multiple a {
+			display: inline-block;
+			min-width: 90%;
 		}
 		a:before {
 			float: right;
 			content: "→"
 
 		}
-		a:focus {
+		*:focus {
 			background-color: yellow;
+		}
+		button {
+			position: absolute;
+			right: 10px;
 		}
 	</style>
 </head>
 <body>
-<p>
-	Example of navigation list, where clicking an entry moves to another view.
-</p>
-<input value="for focus test"/>
-<my-nav-list tabindex="0" role="listbox">
-	<div role=option>
-		<a href="http://www.yahoo.com" tabindex="-1">Yahoo!</a>
-	</div>
-	<div role=option>
-		<a href="http://www.google.com" tabindex="-1">Google</a>
-	</div>
-	<div role=option>
-		<a href="http://www.ibm.com" tabindex="-1">IBM</a>
-	</div>
-</my-nav-list>
+	<p id="singleLabel">
+		Navigation list w/single active element:
+	</p>
+	<input value="for focus test"/>
+	<my-nav-list role="list" aria-labelledby="singleLabel">
+		<div role=listitem>
+			<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
+		</div>
+		<div role=listitem>
+			<a href="http://www.google.com" tabindex="-1" navindex="0">Google</a>
+		</div>
+		<div role=listitem>
+			<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
+		</div>
+	</my-nav-list>
+
+	<p id="multipleLabel">
+		Navigation list w/multiple active elements:
+	</p>
+	<input value="for focus test"/>
+	<my-nav-list  role="list" aria-labelledby="multipleLabel" class="multiple">
+		<div role=listitem navindex="0">
+			<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
+			<button type="button" tabindex="-1" navindex="0">delete</button>
+		</div>
+		<div role=listitem navindex="0">
+			<a href="http://www.google.com" tabindex="-1" navindex="0">Google</a>
+			<button type="button" tabindex="-1" navindex="0">delete</button>
+		</div>
+		<div role=listitem navindex="0">
+			<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
+			<button type="button" tabindex="-1" navindex="0">delete</button>
+		</div>
+	</my-nav-list>
 </body>
 </html>
