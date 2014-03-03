@@ -118,7 +118,7 @@
 </head>
 <body>
 	<p id="singleLabel">
-		Navigation list w/single active element:
+		Navigation list with single active element:
 	</p>
 	<input value="for focus test"/>
 	<my-nav-list role="list" aria-labelledby="singleLabel">
@@ -134,7 +134,7 @@
 	</my-nav-list>
 
 	<p id="multipleLabel">
-		Navigation list w/multiple active elements:
+		Navigation list with multiple active elements:
 	</p>
 	<input value="for focus test"/>
 	<my-nav-list  role="list" aria-labelledby="multipleLabel" class="multiple">
@@ -153,23 +153,32 @@
 	</my-nav-list>
 
 	<p id="singleOptionLabel">
-		role=listbox w/single active element:
+		Selection list (role=listbox) with single active element:
 	</p>
 	<input value="for focus test"/>
 	<my-nav-list role="listbox" aria-labelledby="singleOptionLabel">
-		<div role=option>
-			<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
-		</div>
-		<div role=option>
-			<a href="http://www.google.com" tabindex="-1" navindex="0">Google</a>
-		</div>
-		<div role=option>
-			<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
-		</div>
+		<fieldset role="group">
+			<legend>Internet companies</legend>
+			<div role=option tabindex="-1" navindex="0">
+				Yahoo
+			</div>
+			<div role=option tabindex="-1" navindex="0">
+				Google
+			</div>
+		</fieldset>
+		<fieldset role="group">
+			<legend>Brick And Mortar</legend>
+			<div role=option tabindex="-1" navindex="0">
+				IBM
+			</div>
+			<div role=option tabindex="-1" navindex="0">
+				Ford
+			</div>
+		</fieldset>
 	</my-nav-list>
 
 	<p id="multipleOptionLabel">
-		role=listbox w/multiple active elements:
+		role=listbox with multiple active elements:
 	</p>
 	<input value="for focus test"/>
 	<my-nav-list  role="listbox" aria-labelledby="multipleOptionLabel" class="multiple">
