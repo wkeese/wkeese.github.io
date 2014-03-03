@@ -118,19 +118,48 @@
 </head>
 <body>
 	<p id="singleLabel">
+		Navigation list with single active element.
+		No javascript (navigate via tabbing)
+	</p>
+	<input value="for focus test"/>
+	<div role="list" aria-labelledby="singleLabel">
+		<fieldset role="group">
+			<legend>Internet companies</legend>
+			<div role=listitem>
+				<a href="http://www.yahoo.com">Yahoo!</a>
+			</div>
+			<div role=listitem>
+				<a href="http://www.google.com">Google</a>
+			</div>
+		</fieldset>
+		<fieldset role="group">
+			<legend>Brick And Mortar</legend>
+			<div role=listitem>
+				<a href="http://www.ibm.com">IBM</a>
+			</div>
+		</fieldset>
+	</div>
+
+	<p id="singleLabel">
 		Navigation list with single active element:
 	</p>
 	<input value="for focus test"/>
 	<my-nav-list role="list" aria-labelledby="singleLabel">
-		<div role=listitem>
-			<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
-		</div>
-		<div role=listitem>
-			<a href="http://www.google.com" tabindex="-1" navindex="0">Google</a>
-		</div>
-		<div role=listitem>
-			<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
-		</div>
+		<fieldset role="group">
+			<legend>Internet companies</legend>
+			<div role=listitem>
+				<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
+			</div>
+			<div role=listitem>
+				<a href="http://www.google.com" tabindex="-1" navindex="0">Google</a>
+			</div>
+		</fieldset>
+		<fieldset role="group">
+			<legend>Brick And Mortar</legend>
+			<div role=listitem>
+				<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
+			</div>
+		</fieldset>
 	</my-nav-list>
 
 	<p id="multipleLabel">
