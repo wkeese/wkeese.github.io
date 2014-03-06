@@ -1,0 +1,28 @@
+<html>
+	<head>
+		<script>
+			var cnt;
+			function createNodes(){
+				cnt = 0;
+				var start = (new Date()).getTime();
+				for(var i=0; i<2000; i++){
+					var span = document.createElement("span");
+					document.body.appendChild(span);
+				}
+				var end = (new Date()).getTime();
+				window.log.insertAdjacentHTML("beforeend", "Created DOM nodes in " +
+						(end - start) + "ms, event callbacks = " + cnt + "<br>");
+			}
+			function setupListener(){
+				document.body.addEventListener("DOMNodeInserted", function(){
+					cnt++;
+				});
+			}
+		</script>
+	</head>
+	<body>
+		<button type="button" onclick="createNodes();">create 2000 DOM nodes</button>
+		<button type="button" onclick="setupListener();">set up DOMNodeInserted listener</button>
+		<div id="log"></div>
+	</body>
+</html>
