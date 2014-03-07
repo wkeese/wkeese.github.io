@@ -1,7 +1,7 @@
 <html>
 	<head>
 		<script>
-			var cnt;
+			var cnt, end;
 			function createNodes(){
 				cnt = 0;
 				var start = (new Date()).getTime();
@@ -9,20 +9,32 @@
 					var span = document.createElement("span");
 					document.body.appendChild(span);
 				}
-				var end = (new Date()).getTime();
+				end = (new Date()).getTime();
 				window.log.insertAdjacentHTML("beforeend", "Created DOM nodes in " +
 						(end - start) + "ms, event callbacks = " + cnt + "<br>");
 			}
-			function setupListener(){
+			function setupDOMNodeInsertedListener(){
 				document.body.addEventListener("DOMNodeInserted", function(){
 					cnt++;
+				});
+			}
+			function setupMutationObserver(){
+				var mo = new MutationObserver(function(mr){
+					var end2 = (new Date()).getTime();
+					window.log.insertAdjacentHTML("beforeend", "Mutation Observer callback " +
+							(end2 - end) + "ms later, received " +
+							mr.length + " mutation records.<br>");
+				});
+				mo.observe(document.body, {
+					childList: true
 				});
 			}
 		</script>
 	</head>
 	<body>
 		<button type="button" onclick="createNodes();">create 2000 DOM nodes</button>
-		<button type="button" onclick="setupListener();">set up DOMNodeInserted listener</button>
+		<button type="button" onclick="setupDOMNodeInsertedListener();">set up DOMNodeInserted listener</button>
+		<button type="button" onclick="setupMutationObserver();">set up MutationObserver</button>
 		<div id="log"></div>
 	</body>
 </html>
