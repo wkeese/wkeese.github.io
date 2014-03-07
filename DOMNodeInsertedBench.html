@@ -4,37 +4,75 @@
 			var cnt, end;
 			function createNodes(){
 				cnt = 0;
+				window.pane1.innerHTML = "pane1<br>";
 				var start = (new Date()).getTime();
 				for(var i=0; i<2000; i++){
 					var span = document.createElement("span");
-					document.body.appendChild(span);
+					window.pane1.appendChild(span);
 				}
 				end = (new Date()).getTime();
-				window.log.insertAdjacentHTML("beforeend", "Created DOM nodes in " +
-						(end - start) + "ms, event callbacks = " + cnt + "<br>");
+				window.log.insertAdjacentHTML("beforeend", "Created 2000 DOM nodes in " +
+						(end - start) + "ms, DOMNodeInserted callbacks = " + cnt + "<br>");
 			}
 			function setupDOMNodeInsertedListener(){
 				document.body.addEventListener("DOMNodeInserted", function(){
 					cnt++;
 				});
 			}
-			function setupMutationObserver(){
+			function setupMutationObserver(node){
 				var mo = new MutationObserver(function(mr){
 					var end2 = (new Date()).getTime();
 					window.log.insertAdjacentHTML("beforeend", "Mutation Observer callback " +
 							(end2 - end) + "ms later, received " +
 							mr.length + " mutation records.<br>");
 				});
-				mo.observe(document.body, {
+				mo.observe(node, {
 					childList: true
 				});
 			}
 		</script>
+		<style>
+			div {
+				border: 1px solid black;
+				padding: 5px;
+			}
+		</style>
 	</head>
 	<body>
+		<p>
+			Possible benchmarks:
+		</p>
+		<ol>
+			<li>
+				Click "Create 2000 DOM nodes" - runs without any listeners
+			</li>
+			<li>
+				Click "set up DOMNodeInserted listener" (only once), then "Create 2000 DOM nodes" -
+				runs same benchmark with a listener
+			</li>
+			<li>
+				Click "set up MutationObserver on container" (only once), then "Create 2000 DOM nodes" -
+				since the MutationObserver is only listening for changes to container's children, but the DOM nodes
+				are created in pane1, there's no callback
+			</li>
+			<li>
+				Click "set up MutationObserver on pane1" (only once), then "Create 2000 DOM nodes" -
+				will get 2001 notifications, for the 2000 created nodes plus the BR after "pane1"
+			</li>
+		</ol>
 		<button type="button" onclick="createNodes();">create 2000 DOM nodes</button>
 		<button type="button" onclick="setupDOMNodeInsertedListener();">set up DOMNodeInserted listener</button>
-		<button type="button" onclick="setupMutationObserver();">set up MutationObserver</button>
-		<div id="log"></div>
+		<button type="button" onclick="setupMutationObserver(window.container);">
+			set up MutationObserver on container
+		</button>
+		<button type="button" onclick="setupMutationObserver(window.pane1);">
+			set up MutationObserver on pane1
+		</button>
+		<div id="log">Log:<br></div>
+		<br>
+		<div id="container">
+			container
+			<div id="pane1">pane1</div>
+		</div>
 	</body>
 </html>
