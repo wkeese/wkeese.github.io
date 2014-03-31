@@ -4,11 +4,20 @@
 	<script src="requirejs/require.js"></script>
 	<script>
 		require([
-			"delite/register", "delite/KeyNav", "dojo/query", "dojo/domReady!"
-		], function(register, KeyNav){
-			var List = register("my-list", [HTMLElement, KeyNav], {
+			"delite/a11yclick", "delite/register", "delite/KeyNav",
+			"dojo/on", "dojo/query", "dojo/domReady!"
+		], function(a11yclick, register, KeyNav, on){
+			register("my-list", [HTMLElement, KeyNav], {
 				// Specifies which descendants can be navigated to
 				childSelector: "[navindex]",
+
+				postCreate: function () {
+					// toggle checked state of options when they are clicked
+					this.on(on.selector("[role=option]", a11yclick), function () {
+						var checked = this.getAttribute("aria-checked") == "true";
+						this.setAttribute("aria-checked", checked ? "false" : "true");
+					});
+				},
 
 				_getCurrentListItem: function () {
 					// Returns the list item that contains the currently focused child
@@ -28,16 +37,16 @@
 				},
 
 				// Home/End key support
-				_getFirst: function(){
+				_getFirst: function () {
 					return this._getListItemChildren(this.firstElementChild)[0];
 				},
-				_getLast: function(){
+				_getLast: function () {
 					// should this go to last list item, or last field in last list item?
 					return this._getListItemChildren(this.lastElementChild)[0];
 				},
 
 				// Simple arrow key support.
-				_onDownArrow: function(){
+				_onDownArrow: function () {
 					// Go to next list item (focusing first navigable field or list item itself).
 					var next;
 					do {
@@ -45,7 +54,7 @@
 					} while ( next && false );	// TODO: keep going till next listitem/option
 					this.focusChild(next);
 				},
-				_onUpArrow: function(){
+				_onUpArrow: function () {
 					// Go to previous list item (focusing first navigable field or list item itself)
 					var prev;
 					do {
@@ -53,14 +62,14 @@
 					} while ( prev && false );	// TODO: keep going till prev listitem/option
 					this.focusChild(prev);
 				},
-				_onRightArrow: function(){
+				_onRightArrow: function () {
 					// Loop through fields in current list item
 					var li = this._getCurrentListItem(),
 						children = this._getListItemChildren(li),
 						idx = Array.prototype.indexOf.call(children, this.focusedChild);
 					this.focusChild(children[(idx + 1) % children.length]);
 				},
-				_onLeftArrow: function(){
+				_onLeftArrow: function () {
 					// Loop through fields in current list item
 					var li = this._getCurrentListItem(),
 						children = this._getListItemChildren(li),
@@ -112,6 +121,13 @@
 			position: absolute;
 			right: 10px;
 		}
+
+		[role=option]:before {
+			content: "☐";
+		}
+		[role=option][aria-checked=true]:before {
+			content: "☑";
+		}
 	</style>
 </head>
 <body>
@@ -145,19 +161,19 @@
 		<fieldset role="group">
 			<legend>Internet companies</legend>
 			<div role=option tabindex="-1" navindex="0">
-				☐ Yahoo
+				Yahoo
 			</div>
 			<div role=option tabindex="-1" navindex="0" aria-checked="true">
-				☑ Google
+				Google
 			</div>
 		</fieldset>
 		<fieldset role="group">
 			<legend>Brick And Mortar</legend>
 			<div role=option tabindex="-1" navindex="0">
-				☐ IBM
+				IBM
 			</div>
 			<div role=option tabindex="-1" navindex="0" aria-checked="true">
-				☑ Ford
+				Ford
 			</div>
 		</fieldset>
 	</my-list>
