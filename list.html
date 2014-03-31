@@ -6,13 +6,9 @@
 		require([
 			"delite/register", "delite/KeyNav", "dojo/query", "dojo/domReady!"
 		], function(register, KeyNav){
-			var List = register("my-nav-list", [HTMLElement, KeyNav], {
-				buildRendering: function(){
-					this.containerNode = this;
-				},
-
+			var List = register("my-list", [HTMLElement, KeyNav], {
 				// Specifies which descendants can be navigated to
-				childSelector: "*",
+				childSelector: "[navindex]",
 
 				_getCurrentListItem: function () {
 					// Returns the list item that contains the currently focused child
@@ -42,18 +38,20 @@
 
 				// Simple arrow key support.
 				_onDownArrow: function(){
-					// Go to next list item (focusing first navigable field or list item itself)
-					var li = this._getCurrentListItem(),
-						nextLi = li.nextElementSibling || this.firstElementChild,
-						children = this._getListItemChildren(nextLi);
-					this.focusChild(children[0]);
+					// Go to next list item (focusing first navigable field or list item itself).
+					var next;
+					do {
+						next = this._getNextFocusableChild(this.focusedChild, 1);
+					} while ( next && false );	// TODO: keep going till next listitem/option
+					this.focusChild(next);
 				},
 				_onUpArrow: function(){
 					// Go to previous list item (focusing first navigable field or list item itself)
-					var li = this._getCurrentListItem(),
-						prevLi = li.previousElementSibling || this.lastElementChild,
-						children = this._getListItemChildren(prevLi);
-					this.focusChild(children[0]);
+					var prev;
+					do {
+						prev = this._getNextFocusableChild(this.focusedChild, -1);
+					} while ( prev && false );	// TODO: keep going till prev listitem/option
+					this.focusChild(prev);
 				},
 				_onRightArrow: function(){
 					// Loop through fields in current list item
@@ -75,14 +73,14 @@
 		});
 	</script>
 	<style>
-		my-nav-list {
+		my-list {
 			border: 2px solid black;
 			padding: 2px;
 			display: block;
 		}
 
 		/* listitem */
-		my-nav-list > div {
+		my-list > div {
 			border: 2px solid gray;
 			padding: 5px;
 			margin: 3px;
@@ -118,33 +116,10 @@
 </head>
 <body>
 	<p id="singleLabel">
-		Navigation list with single active element.
-		No javascript (navigate via tabbing)
+		Navigation list with single active element
 	</p>
 	<input value="for focus test"/>
-	<div role="list" aria-labelledby="singleLabel">
-		<fieldset role="group">
-			<legend>Internet companies</legend>
-			<div role=listitem>
-				<a href="http://www.yahoo.com">Yahoo!</a>
-			</div>
-			<div role=listitem>
-				<a href="http://www.google.com">Google</a>
-			</div>
-		</fieldset>
-		<fieldset role="group">
-			<legend>Brick And Mortar</legend>
-			<div role=listitem>
-				<a href="http://www.ibm.com">IBM</a>
-			</div>
-		</fieldset>
-	</div>
-
-	<p id="singleLabel">
-		Navigation list with single active element:
-	</p>
-	<input value="for focus test"/>
-	<my-nav-list role="list" aria-labelledby="singleLabel">
+	<my-list role="list" aria-labelledby="singleLabel">
 		<fieldset role="group">
 			<legend>Internet companies</legend>
 			<div role=listitem>
@@ -160,57 +135,57 @@
 				<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
 			</div>
 		</fieldset>
-	</my-nav-list>
-
-	<p id="multipleLabel">
-		Navigation list with multiple active elements:
-	</p>
-	<input value="for focus test"/>
-	<my-nav-list  role="list" aria-labelledby="multipleLabel" class="multiple">
-		<div role=listitem navindex="0">
-			<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
-			<button type="button" tabindex="-1" navindex="0">delete</button>
-		</div>
-		<div role=listitem navindex="0">
-			<a href="http://www.google.com" tabindex="-1" navindex="0">Google</a>
-			<button type="button" tabindex="-1" navindex="0">delete</button>
-		</div>
-		<div role=listitem navindex="0">
-			<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
-			<button type="button" tabindex="-1" navindex="0">delete</button>
-		</div>
-	</my-nav-list>
+	</my-list>
 
 	<p id="singleOptionLabel">
-		Selection list (role=listbox) with single active element:
+		Listbox with single active element
 	</p>
 	<input value="for focus test"/>
-	<my-nav-list role="listbox" aria-labelledby="singleOptionLabel">
+	<my-list role="listbox" aria-labelledby="singleOptionLabel">
 		<fieldset role="group">
 			<legend>Internet companies</legend>
 			<div role=option tabindex="-1" navindex="0">
-				Yahoo
+				☐ Yahoo
 			</div>
-			<div role=option tabindex="-1" navindex="0">
-				Google
+			<div role=option tabindex="-1" navindex="0" aria-checked="true">
+				☑ Google
 			</div>
 		</fieldset>
 		<fieldset role="group">
 			<legend>Brick And Mortar</legend>
 			<div role=option tabindex="-1" navindex="0">
-				IBM
+				☐ IBM
 			</div>
-			<div role=option tabindex="-1" navindex="0">
-				Ford
+			<div role=option tabindex="-1" navindex="0" aria-checked="true">
+				☑ Ford
 			</div>
 		</fieldset>
-	</my-nav-list>
+	</my-list>
 
-	<p id="multipleOptionLabel">
-		role=listbox with multiple active elements:
+	<p id="multipleLabel">
+		Navigation list with multiple active elements
 	</p>
 	<input value="for focus test"/>
-	<my-nav-list  role="listbox" aria-labelledby="multipleOptionLabel" class="multiple">
+	<my-list  role="list" aria-labelledby="multipleLabel" class="multiple">
+		<div role=listitem navindex="0">
+			<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
+			<button type="button" tabindex="-1" navindex="0">delete</button>
+		</div>
+		<div role=listitem navindex="0">
+			<a href="http://www.google.com" tabindex="-1" navindex="0">Google</a>
+			<button type="button" tabindex="-1" navindex="0">delete</button>
+		</div>
+		<div role=listitem navindex="0">
+			<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
+			<button type="button" tabindex="-1" navindex="0">delete</button>
+		</div>
+	</my-list>
+
+	<p id="multipleOptionLabel">
+		Listbox with multiple active elements
+	</p>
+	<input value="for focus test"/>
+	<my-list  role="listbox" aria-labelledby="multipleOptionLabel" class="multiple">
 		<div role=option navindex="0">
 			<a href="http://www.yahoo.com" tabindex="-1" navindex="0">Yahoo!</a>
 			<button type="button" tabindex="-1" navindex="0">delete</button>
@@ -223,6 +198,6 @@
 			<a href="http://www.ibm.com" tabindex="-1" navindex="0">IBM</a>
 			<button type="button" tabindex="-1" navindex="0">delete</button>
 		</div>
-	</my-nav-list>
+	</my-list>
 </body>
 </html>
